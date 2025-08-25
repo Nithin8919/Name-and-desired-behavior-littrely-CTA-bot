@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTA Optimization Bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <h1>CTA Optimization Bot</h1>
+            </div>
+            <nav class="nav">
+                <button class="nav-tab active" data-tab="input">Input</button>
+                <button class="nav-tab" data-tab="results" disabled>Results</button>
+            </nav>
+            <div class="status-indicator" id="statusIndicator" style="display: none;">
+                <div class="spinner"></div>
+                <span>Analyzing...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Input Section -->
+            <section id="inputSection" class="input-section">
+                <h2>Choose Your Analysis Method</h2>
+                
+                <!-- Method 1: URL Analysis -->
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-globe"></i>
+                        <h3>Analyze Website URL</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="input-group">
+                            <input type="url" id="urlInput" placeholder="https://example.com" class="form-input">
+                            <button id="scanWebsiteBtn" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Scan Website
+                            </button>
+                        </div>
+                        <p class="helper-text">Enter a website URL to scan for CTAs</p>
+                        
+                        <div class="advanced-options">
+                            <button class="toggle-options" onclick="toggleOptions('urlOptions')">
+                                <i class="fas fa-cog"></i> Advanced Options
+                            </button>
+                            <div id="urlOptions" class="options-panel" style="display: none;">
+                                <div class="option-row">
+                                    <label>Max pages to scan:</label>
+                                    <select id="maxPages">
+                                        <option value="3">3</option>
+                                        <option value="5" selected>5</option>
+                                        <option value="10">10</option>
+                                    </select>
+                                </div>
+                                <div class="option-row">
+                                    <label>Scan depth:</label>
+                                    <select id="scanDepth">
+                                        <option value="1">1</option>
+                                        <option value="2" selected>2</option>
+                                        <option value="3">3</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Method 2: Image Upload -->
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-image"></i>
+                        <h3>Upload Image with CTAs</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="upload-zone" id="uploadZone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop an image here or click to browse</p>
+                            <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                            <button class="btn btn-secondary" onclick="document.getElementById('imageInput').click()">
+                                Choose File
+                            </button>
+                        </div>
+                        <p class="helper-text">JPG, PNG, WebP supported</p>
+                        <button id="analyzeImageBtn" class="btn btn-primary" disabled>
+                            <i class="fas fa-eye"></i>
+                            Analyze Image
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Method 3: Direct Text Input -->
+                <div class="input-card">
+                    <div class="card-header">
+                        <i class="fas fa-keyboard"></i>
+                        <h3>Enter CTA Text Directly</h3>
+                    </div>
+                    <div class="card-content">
+                        <textarea id="textInput" placeholder="Enter one CTA per line&#10;Example:&#10;Get Started&#10;Learn More&#10;Download Now" class="form-textarea"></textarea>
+                        <button id="analyzeTextBtn" class="btn btn-primary">
+                            <i class="fas fa-check"></i>
+                            Analyze Text
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <div class="results-stats">
+                        <span id="resultsStats">0 CTAs analyzed · 0 suggestions provided</span>
+                    </div>
+                    <div class="results-actions">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle">
+                                <i class="fas fa-download"></i>
+                                Export Results
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="#" onclick="exportResults('csv')">CSV</a>
+                                <a href="#" onclick="exportResults('json')">JSON</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-table-container">
+                    <table class="results-table" id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th>Original CTA</th>
+                                <th>Suggested Improvement</th>
+                                <th>Confidence</th>
+                                <th>Source</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTableBody">
+                            <!-- Results will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="action-bar">
+                    <div class="bulk-actions">
+                        <select id="bulkActions" class="form-select">
+                            <option value="">Bulk Actions</option>
+                            <option value="accept-all">Accept all suggestions</option>
+                            <option value="revert-all">Revert all changes</option>
+                        </select>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="downloadOptimizedCTAs()">
+                            <i class="fas fa-download"></i>
+                            Download Optimized CTAs
+                        </button>
+                        <button class="btn btn-primary" onclick="startNewAnalysis()">
+                            <i class="fas fa-plus"></i>
+                            Start New Analysis
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section class="history-section">
+                <div class="history-header" onclick="toggleHistory()">
+                    <h3><i class="fas fa-history"></i> Recent Analyses</h3>
+                    <i class="fas fa-chevron-down" id="historyChevron"></i>
+                </div>
+                <div class="history-content" id="historyContent" style="display: none;">
+                    <div id="historyList">
+                        <!-- History items will be populated here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner large"></div>
+            <h3>Analyzing CTAs...</h3>
+            <p>This may take a few moments depending on the complexity</p>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="messageContainer" class="message-container"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
