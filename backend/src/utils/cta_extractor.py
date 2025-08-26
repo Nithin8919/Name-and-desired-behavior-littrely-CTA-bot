@@ -343,3 +343,166 @@ class CTAExtractor:
         
         context = ' '.join(filter(None, siblings))
         return context[:context_length] if context else "No context available"
+    
+    def _get_element_location(self, element: Tag) -> str:
+        """Determine the semantic location/section of the element."""
+        # Check for parent sections with meaningful identifiers
+        for parent in element.parents:
+            if parent.name in ['section', 'article', 'div', 'header', 'footer', 'nav']:
+                # Check for semantic classes
+                classes = parent.get('class', [])
+                class_string = ' '.join(classes).lower()
+                
+                # Map common section types
+                if any(keyword in class_string for keyword in ['hero', 'banner', 'jumbotron']):
+                    return 'Hero Section'
+                elif any(keyword in class_string for keyword in ['header', 'top']):
+                    return 'Header'
+                elif any(keyword in class_string for keyword in ['footer', 'bottom']):
+                    return 'Footer'
+                elif any(keyword in class_string for keyword in ['sidebar', 'aside']):
+                    return 'Sidebar'
+                elif any(keyword in class_string for keyword in ['nav', 'menu']):
+                    return 'Navigation'
+                elif any(keyword in class_string for keyword in ['pricing', 'plans']):
+                    return 'Pricing Section'
+                elif any(keyword in class_string for keyword in ['contact', 'form']):
+                    return 'Contact Section'
+                elif any(keyword in class_string for keyword in ['feature', 'service']):
+                    return 'Features Section'
+                
+                # Check for IDs
+                element_id = parent.get('id', '').lower()
+                if element_id:
+                    if 'hero' in element_id:
+                        return 'Hero Section'
+                    elif 'header' in element_id:
+                        return 'Header'
+                    elif 'footer' in element_id:
+                        return 'Footer'
+                    elif 'nav' in element_id:
+                        return 'Navigation'
+        
+        # Fallback: determine by position in DOM
+        return 'Main Content'
+
+    def _get_form_context(self, form: Tag) -> str:
+        """Get context information about a form."""
+        context_parts = []
+        
+        # Check form action and method
+        action = form.get('action', '')
+        method = form.get('method', 'GET').upper()
+        
+        if action:
+            context_parts.append(f"Form action: {action}")
+        
+        # Analyze form fields to understand purpose
+        inputs = form.find_all(['input', 'select', 'textarea'])
+        field_types = [inp.get('type', 'text') for inp in inputs]
+        field_names = [inp.get('name', '').lower() for inp in inputs]
+        
+        # Determine form type
+        form_type = "Unknown"
+        if 'email' in field_types or any('email' in name for name in field_names):
+            if any('password' in name for name in field_names):
+                form_type = "Login Form"
+            else:
+                form_type = "Email Signup Form"
+        elif any('search' in name for name in field_names):
+            form_type = "Search Form"
+        elif any(word in ' '.join(field_names) for word in ['contact', 'message', 'inquiry']):
+            form_type = "Contact Form"
+        elif len(inputs) > 5:
+            form_type = "Detailed Form"
+        
+        context_parts.append(f"Form type: {form_type}")
+        context_parts.append(f"Fields: {len(inputs)}")
+        
+        return " | ".join(context_parts)
+
+    def _generate_css_selector(self, element: Tag) -> str:
+        """Generate a CSS selector for the element."""
+        selectors = []
+        
+        # Add tag name
+        selectors.append(element.name)
+        
+        # Add ID if present
+        if element.get('id'):
+            return f"#{element.get('id')}"
+        
+        # Add class if present
+        classes = element.get('class', [])
+        if classes:
+            class_selector = '.' + '.'.join(classes)
+            return element.name + class_selector
+        
+        # Add attributes for uniqueness
+        if element.get('type'):
+            return f"{element.name}[type='{element.get('type')}']"
+        
+        return element.name
+
+    def _get_surrounding_context(self, sentences: list, index: int, window: int = 2) -> str:
+        """Get surrounding context for a sentence."""
+        start = max(0, index - window)
+        end = min(len(sentences), index + window + 1)
+        
+        context_sentences = []
+        for i in range(start, end):
+            if i != index:  # Exclude the current sentence
+                context_sentences.append(sentences[i].strip())
+        
+        return " ".join(context_sentences)
+
+    def _deduplicate_ctas(self, ctas: List[ExtractedCTA]) -> List[ExtractedCTA]:
+        """Remove duplicate CTAs while preserving the best context."""
+        seen_texts = {}
+        unique_ctas = []
+        
+        for cta in ctas:
+            text_key = cta.original_text.lower().strip()
+            
+            if text_key not in seen_texts:
+                seen_texts[text_key] = cta
+                unique_ctas.append(cta)
+            else:
+                # Keep the CTA with better context or from a more important location
+                existing = seen_texts[text_key]
+                
+                # Prioritize CTAs with better context
+                if (len(cta.context or '') > len(existing.context or '') or 
+                    self._is_better_location(cta.location, existing.location)):
+                    
+                    # Replace the existing one
+                    index = unique_ctas.index(existing)
+                    unique_ctas[index] = cta
+                    seen_texts[text_key] = cta
+        
+        return unique_ctas
+
+    def _is_better_location(self, location1: str, location2: str) -> bool:
+        """Determine if location1 is better than location2."""
+        if not location1 or not location2:
+            return bool(location1)
+        
+        # Priority order for locations
+        priority_order = [
+            'Hero Section', 'Header', 'Main Content', 'Features Section',
+            'Pricing Section', 'Contact Section', 'Sidebar', 'Footer', 'Navigation'
+        ]
+        
+        try:
+            index1 = priority_order.index(location1)
+        except ValueError:
+            index1 = len(priority_order)
+        
+        try:
+            index2 = priority_order.index(location2)
+        except ValueError:
+            index2 = len(priority_order)
+        
+        return index1 < index2
+    
+    

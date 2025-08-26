@@ -11,6 +11,159 @@ from ..core.config import get_settings
 from ..models.schemas import ExtractedCTA, OptimizedCTA
 
 
+import asyncio
+from typing import Any, Dict, List, Optional
+import openai
+from loguru import logger
+from ..core.config import get_settings
+from ..models.schemas import ExtractedCTA, OptimizedCTA
+
+class AnalysisService:
+    """AI-powered CTA analysis and optimization service using OpenAI."""
+    
+    def __init__(self):
+        self.settings = get_settings()
+        self.client = openai.OpenAI(api_key=self.settings.openai_api_key)
+        
+    def create_optimization_prompt(self, ctas: List[ExtractedCTA]) -> str:
+        """Create a comprehensive prompt for CTA optimization."""
+        
+        prompt = """You are a conversion rate optimization expert specializing in call-to-action (CTA) improvement. Your task is to analyze and optimize CTA text to increase conversion rates.
+
+OPTIMIZATION PRINCIPLES:
+1. Action-Oriented: Use strong action verbs that create urgency
+2. Value-Clear: Communicate clear value proposition  
+3. Specific: Be concrete rather than vague
+4. Benefit-Focused: Highlight what the user gains
+5. Friction-Free: Remove uncertainty and hesitation
+6. Urgent: Create appropriate sense of urgency when relevant
+
+TRANSFORM VAGUE → SPECIFIC:
+- "Learn More" → "See How [Benefit] in 5 Minutes"
+- "Click Here" → "Start Free Trial Now"  
+- "Submit" → "Get My Personalized Quote"
+- "Sign Up" → "Join 50,000+ Professionals"
+
+CTAs TO OPTIMIZE:
+"""
+        
+        for i, cta in enumerate(ctas, 1):
+            prompt += f"""
+{i}. ORIGINAL: "{cta.original_text}"
+   TYPE: {cta.cta_type.value if hasattr(cta.cta_type, 'value') else cta.cta_type}
+   CONTEXT: {cta.context or 'No context available'}
+   LOCATION: {cta.location or 'Unknown location'}
+"""
+        
+        prompt += """
+
+RESPONSE FORMAT (JSON):
+{
+  "optimizations": [
+    {
+      "original_cta_id": "cta_id_here",
+      "optimized_text": "New optimized CTA text",
+      "improvement_rationale": "Specific explanation of why this is better",
+      "confidence_score": 0.85,
+      "optimization_type": "action_oriented|value_focused|urgency_added|specificity_improved",
+      "action_oriented": true,
+      "value_proposition": "What value is highlighted",
+      "urgency_level": 7
+    }
+  ],
+  "general_recommendations": [
+    "Overall recommendations for CTA strategy"
+  ]
+}
+
+IMPORTANT: 
+- Each optimized CTA should be significantly more action-oriented and specific
+- Confidence score should reflect how much improvement is expected (0.0-1.0)
+- Urgency level is 1-10 (1=no urgency, 10=maximum urgency)
+- Always explain WHY the new version is better
+- Keep CTAs concise but impactful (2-6 words ideal)
+"""
+        
+        return prompt
+    
+    async def optimize_ctas(self, ctas: List[ExtractedCTA]) -> List[OptimizedCTA]:
+        """Optimize CTAs using OpenAI API."""
+        if not ctas:
+            logger.warning("No CTAs provided for optimization")
+            return []
+        
+        logger.info(f"Starting optimization of {len(ctas)} CTAs")
+        
+        # Split into batches to handle API limits
+        batch_size = 10
+        all_optimizations = []
+        
+        for i in range(0, len(ctas), batch_size):
+            batch = ctas[i:i + batch_size]
+            logger.info(f"Processing batch {i//batch_size + 1}: {len(batch)} CTAs")
+            
+            try:
+                batch_optimizations = await self._process_cta_batch(batch)
+                all_optimizations.extend(batch_optimizations)
+            except Exception as e:
+                logger.error(f"Failed to process CTA batch: {e}")
+                # Create fallback optimizations for this batch
+                fallback_optimizations = self._create_fallback_optimizations(batch)
+                all_optimizations.extend(fallback_optimizations)
+        
+        logger.info(f"Completed optimization: {len(all_optimizations)} results")
+        return all_optimizations
+    
+    async def _process_cta_batch(self, ctas: List[ExtractedCTA]) -> List[OptimizedCTA]:
+        """Process a batch of CTAs with OpenAI."""
+        prompt = self.create_optimization_prompt(ctas)
+        
+        try:
+            response = await self._call_openai_api(prompt)
+            return self._parse_optimization_response(response, ctas)
+        except Exception as e:
+            logger.error(f"OpenAI API call failed: {e}")
+            raise
+    
+    async def _call_openai_api(self, prompt: str) -> str:
+        """Make API call to OpenAI with error handling."""
+        try:
+            # Run in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            response = await loop.run_in_executor(
+                None,
+                lambda: self.client.chat.completions.create(
+                    model=self.settings.openai_model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert conversion rate optimization specialist. Always respond with valid JSON format."
+                        },
+                        {
+                            "role": "user", 
+                            "content": prompt
+                        }
+                    ],
+                    max_tokens=self.settings.openai_max_tokens,
+                    temperature=self.settings.openai_temperature,
+                    response_format={"type": "json_object"}
+                )
+            )
+            
+            content = response.choices[0].message.content
+            logger.debug(f"OpenAI response received: {len(content)} characters")
+            
+            return content
+            
+        except openai.RateLimitError as e:
+            logger.error(f"OpenAI rate limit exceeded: {e}")
+            raise
+        except openai.APIError as e:
+            logger.error(f"OpenAI API error: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error calling OpenAI: {e}")
+            raise
 class AnalysisService:
     """AI-powered CTA analysis and optimization service using OpenAI."""
     

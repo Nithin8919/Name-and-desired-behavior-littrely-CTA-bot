@@ -12,6 +12,19 @@ from loguru import logger
 from .api.endpoints import router as api_router
 from .core.config import get_settings, setup_directories, setup_logging
 
+from fastapi.middleware.cors import CORSMiddleware
+
+# In create_app function, update CORS settings:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5005", "http://localhost:8080", "*"],  # Add frontend ports
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
 
 # Application startup/shutdown
 @asynccontextmanager
