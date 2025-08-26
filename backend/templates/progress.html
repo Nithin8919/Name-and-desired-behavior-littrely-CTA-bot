@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis in Progress - CTA Literally Bot{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-cogs fa-spin me-2"></i>
+                        Analysis in Progress
+                    </h3>
+                </div>
+                <div class="card-body text-center p-5">
+                    <div class="progress-container mb-4">
+                        <div class="progress" style="height: 25px;">
+                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                                 role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="status-container mb-4">
+                        <h5 id="status-message" class="text-primary">Initializing analysis...</h5>
+                        <p id="status-details" class="text-muted">Please wait while we analyze your content</p>
+                    </div>
+                    
+                    <div class="analysis-info mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <i class="fas fa-tag text-info"></i>
+                                    <h6>Analysis Type</h6>
+                                    <p id="analysis-type">{{ analysis_type }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <i class="fas fa-link text-success"></i>
+                                    <h6>Source</h6>
+                                    <p id="source">{{ source }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="loading-animation mb-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="estimated-time mb-4">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Estimated time: <span id="estimated-time">2-5 minutes</span>
+                        </small>
+                    </div>
+                    
+                    <div class="actions">
+                        <button id="cancel-btn" class="btn btn-outline-secondary me-2" onclick="cancelAnalysis()">
+                            <i class="fas fa-times me-1"></i>
+                            Cancel
+                        </button>
+                        <button id="refresh-btn" class="btn btn-primary" onclick="checkStatus()" style="display: none;">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            Check Status
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Results Modal -->
+<div class="modal fade" id="resultsModal" tabindex="-1" aria-labelledby="resultsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="resultsModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Analysis Complete!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="results-content">
+                    <!-- Results will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a id="view-full-results" href="#" class="btn btn-primary">View Full Results</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Analysis Failed
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="error-message">An error occurred during analysis.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.progress-container {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.info-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.info-card i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.info-card h6 {
+    margin: 0.5rem 0;
+    color: #495057;
+}
+
+.info-card p {
+    margin: 0;
+    font-weight: 500;
+    color: #6c757d;
+}
+
+.loading-animation {
+    margin: 2rem 0;
+}
+
+.estimated-time {
+    font-size: 0.9rem;
+}
+
+.actions {
+    margin-top: 2rem;
+}
+
+#cancel-btn:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+.status-container h5 {
+    transition: color 0.3s ease;
+}
+
+.status-container p {
+    transition: color 0.3s ease;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const taskId = '{{ task_id }}';
+let progressInterval;
+let progressValue = 0;
+let isCompleted = false;
+
+// Initialize progress tracking
+document.addEventListener('DOMContentLoaded', function() {
+    startProgressTracking();
+    checkStatus();
+});
+
+function startProgressTracking() {
+    progressInterval = setInterval(() => {
+        if (!isCompleted && progressValue < 90) {
+            progressValue += Math.random() * 15;
+            progressValue = Math.min(progressValue, 90);
+            updateProgress(progressValue);
+        }
+    }, 2000);
+}
+
+function updateProgress(value) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    progressBar.style.width = value + '%';
+    progressBar.setAttribute('aria-valuenow', value);
+    progressText.textContent = Math.round(value) + '%';
+}
+
+function checkStatus() {
+    fetch(`/api/task-status/${taskId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed') {
+                handleCompletion(data.result);
+            } else if (data.status === 'error') {
+                handleError(data.error);
+            } else {
+                updateStatus(data.message);
+                // Continue checking
+                setTimeout(checkStatus, 3000);
+            }
+        })
+        .catch(error => {
+            console.error('Error checking status:', error);
+            setTimeout(checkStatus, 5000);
+        });
+}
+
+function updateStatus(message) {
+    const statusMessage = document.getElementById('status-message');
+    const statusDetails = document.getElementById('status-details');
+    
+    statusMessage.textContent = message;
+    
+    // Update progress based on message
+    if (message.includes('Analyzing')) {
+        progressValue = Math.min(progressValue + 10, 80);
+        updateProgress(progressValue);
+    } else if (message.includes('Optimizing')) {
+        progressValue = Math.min(progressValue + 15, 90);
+        updateProgress(progressValue);
+    }
+}
+
+function handleCompletion(result) {
+    isCompleted = true;
+    clearInterval(progressInterval);
+    
+    // Update UI to show completion
+    updateProgress(100);
+    document.getElementById('status-message').textContent = 'Analysis Complete!';
+    document.getElementById('status-message').className = 'text-success';
+    document.getElementById('status-details').textContent = 'Your CTAs have been analyzed and optimized';
+    
+    // Show results modal
+    showResultsModal(result);
+}
+
+function handleError(error) {
+    isCompleted = true;
+    clearInterval(progressInterval);
+    
+    // Update UI to show error
+    document.getElementById('status-message').textContent = 'Analysis Failed';
+    document.getElementById('status-message').className = 'text-danger';
+    document.getElementById('status-details').textContent = error || 'An error occurred during analysis';
+    
+    // Show error modal
+    showErrorModal(error);
+}
+
+function showResultsModal(result) {
+    const modal = new bootstrap.Modal(document.getElementById('resultsModal'));
+    const resultsContent = document.getElementById('results-content');
+    const viewFullResults = document.getElementById('view-full-results');
+    
+    // Populate results content
+    resultsContent.innerHTML = `
+        <div class="text-center mb-3">
+            <i class="fas fa-chart-line text-success fa-3x mb-3"></i>
+            <h5>Analysis Summary</h5>
+        </div>
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="border rounded p-3">
+                    <h6 class="text-primary">${result.total_ctas}</h6>
+                    <small class="text-muted">CTAs Found</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-3">
+                    <h6 class="text-success">${result.avg_literalness}/10</h6>
+                    <small class="text-muted">Avg. Literalness</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="border rounded p-3">
+                    <h6 class="text-info">${result.has_improvements ? 'Yes' : 'No'}</h6>
+                    <small class="text-muted">Improvements</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <p class="text-muted text-center">
+                <i class="fas fa-lightbulb me-1"></i>
+                ${result.optimizations.length} optimization suggestions generated
+            </p>
+        </div>
+    `;
+    
+    // Set link to full results
+    viewFullResults.href = `/results/${taskId}`;
+    
+    // Show modal
+    modal.show();
+    
+    // Auto-redirect after 5 seconds
+    setTimeout(() => {
+        window.location.href = `/results/${taskId}`;
+    }, 5000);
+}
+
+function showErrorModal(error) {
+    const modal = new bootstrap.Modal(document.getElementById('errorModal'));
+    document.getElementById('error-message').textContent = error || 'An error occurred during analysis';
+    modal.show();
+}
+
+function cancelAnalysis() {
+    if (confirm('Are you sure you want to cancel this analysis?')) {
+        window.location.href = '/';
+    }
+}
+
+// Auto-refresh status every 5 seconds
+setInterval(() => {
+    if (!isCompleted) {
+        checkStatus();
+    }
+}, 5000);
+</script>
+{% endblock %}

@@ -1,1095 +1,516 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTA Literally Bot - Transform Vague CTAs into Conversion Machines</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Your Custom Color Palette */
-            --color-black: #000000;
-            --color-minder: #7C8DA5;
-            --color-white: #FFFFFF;
-            --color-blue: #1B87FF;
-            --color-orange: #FFA927;
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, #0D2FFF 0%, #0073FF 100%);
-            --gradient-cta: linear-gradient(135deg, #FC332C 0%, #FF8522 100%);
-            --gradient-background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
-            
-            /* Glass Effects */
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
+{% extends "base.html" %}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block title %}CTA Optimization Bot - Transform Vague CTAs into High-Converting Actions{% endblock %}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--gradient-background);
-            color: var(--color-white);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(29, 135, 255, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 169, 39, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(13, 47, 255, 0.1) 0%, transparent 50%);
-            z-index: -1;
-            animation: backgroundShift 20s ease-in-out infinite;
-        }
-
-        @keyframes backgroundShift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            25% { transform: translateX(-10px) translateY(-5px); }
-            50% { transform: translateX(10px) translateY(5px); }
-            75% { transform: translateX(-5px) translateY(10px); }
-        }
-
-        /* Navigation */
-        .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 100;
-            padding: 1.5rem 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--color-white);
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--color-minder);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:hover {
-            color: var(--color-blue);
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gradient-primary);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 8rem 2rem 4rem;
-            position: relative;
-        }
-
-        .hero-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: center;
-        }
-
-        .hero-content h1 {
-            font-size: 4.5rem;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, var(--color-white) 0%, var(--color-blue) 50%, var(--color-orange) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-subtitle {
-            font-size: 1.4rem;
-            color: var(--color-minder);
-            margin-bottom: 2rem;
-            line-height: 1.6;
-            font-weight: 400;
-        }
-
-        .hero-cta-group {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 1.5rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--color-blue);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--color-minder);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Input Interface */
-        .input-interface {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 30px;
-            padding: 3rem;
-            backdrop-filter: blur(20px);
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .input-interface::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        }
-
-        .interface-header {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .interface-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--color-white);
-        }
-
-        .interface-subtitle {
-            color: var(--color-minder);
-            font-size: 1.1rem;
-        }
-
-        /* Enhanced Tab System */
-        .tab-system {
-            margin-bottom: 3rem;
-        }
-
-        .tab-navigation {
-            display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 0.5rem;
-            margin-bottom: 2rem;
-            position: relative;
-        }
-
-        .tab-indicator {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
-            height: calc(100% - 1rem);
-            background: var(--gradient-primary);
-            border-radius: 15px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 1.2rem 2rem;
-            border: none;
-            background: transparent;
-            color: var(--color-minder);
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.8rem;
-        }
-
-        .tab-button.active {
-            color: var(--color-white);
-        }
-
-        .tab-icon {
-            font-size: 1.2rem;
-        }
-
-        /* Form Styling */
-        .tab-content {
-            display: none;
-            animation: slideUp 0.5s ease-out;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .form-group {
-            margin-bottom: 2rem;
-        }
-
-        .form-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--color-white);
-            font-size: 1.1rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            color: var(--color-white);
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--color-blue);
-            box-shadow: 0 0 0 4px rgba(29, 135, 255, 0.1);
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .form-input::placeholder {
-            color: var(--color-minder);
-        }
-
-        .form-textarea {
-            min-height: 140px;
-            resize: vertical;
-            font-family: inherit;
-        }
-
-        /* Premium Upload Zone */
-        .upload-zone {
-            border: 2px dashed rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 4rem 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            background: rgba(255, 255, 255, 0.02);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-zone::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(29, 135, 255, 0.1), transparent);
-            animation: rotate 10s linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .upload-zone:hover::before {
-            opacity: 1;
-        }
-
-        @keyframes rotate {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .upload-zone:hover,
-        .upload-zone.dragover {
-            border-color: var(--color-blue);
-            background: rgba(29, 135, 255, 0.05);
-            transform: translateY(-2px);
-        }
-
-        .upload-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        .upload-icon {
-            font-size: 4rem;
-            color: var(--color-minder);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .upload-zone:hover .upload-icon {
-            color: var(--color-blue);
-            transform: scale(1.1);
-        }
-
-        .upload-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--color-white);
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-subtext {
-            color: var(--color-minder);
-            font-size: 1rem;
-        }
-
-        /* Premium Buttons */
-        .btn {
-            padding: 1.2rem 2.5rem;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.8rem;
-            text-decoration: none;
-            justify-content: center;
-            min-width: 200px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: var(--gradient-primary);
-            color: var(--color-white);
-            box-shadow: 0 10px 30px rgba(13, 47, 255, 0.3);
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(13, 47, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: var(--color-white);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .analyze-button-container {
-            text-align: center;
-            margin-top: 3rem;
-        }
-
-        /* Examples Showcase */
-        .examples-showcase {
-            margin-top: 4rem;
-            padding: 3rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 25px;
-            backdrop-filter: blur(20px);
-        }
-
-        .examples-title {
-            text-align: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            color: var(--color-white);
-        }
-
-        .examples-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .example-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .example-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--color-blue);
-            box-shadow: 0 10px 30px rgba(29, 135, 255, 0.2);
-        }
-
-        .example-before {
-            background: var(--gradient-cta);
-            color: var(--color-white);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .example-arrow {
-            text-align: center;
-            font-size: 1.5rem;
-            color: var(--color-minder);
-            margin: 1rem 0;
-        }
-
-        .example-after {
-            background: var(--gradient-primary);
-            color: var(--color-white);
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(13, 47, 255, 0.3);
-        }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-content {
-            text-align: center;
-            color: var(--color-white);
-            max-width: 400px;
-        }
-
-        .loading-spinner {
-            width: 80px;
-            height: 80px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--color-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 2rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .loading-subtitle {
-            color: var(--color-minder);
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        /* Messages */
-        .message {
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin: 1rem 0;
-            display: none;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .hero-container {
-                grid-template-columns: 1fr;
-                gap: 3rem;
-                text-align: center;
-            }
-            
-            .hero-content h1 {
-                font-size: 3.5rem;
-            }
-            
-            .input-interface {
-                padding: 2rem;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-container {
-                padding: 0 1rem;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .hero {
-                padding: 6rem 1rem 2rem;
-            }
-            
-            .hero-content h1 {
-                font-size: 2.8rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-            
-            .hero-stats {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .tab-navigation {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .tab-indicator {
-                display: none;
-            }
-            
-            .examples-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero-cta-group {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .hero-content h1 {
-                font-size: 2.2rem;
-            }
-            
-            .input-interface {
-                padding: 1.5rem;
-            }
-            
-            .upload-zone {
-                padding: 3rem 1rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">🎯 CTA Literally Bot</a>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#examples">Examples</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
-
+{% block content %}
+<div class="fade-in">
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-container">
-            <div class="hero-content">
-                <h1>Transform Vague CTAs into Conversion Machines</h1>
-                <p class="hero-subtitle">
-                    Stop losing customers to confusing call-to-actions. Our AI analyzes your CTAs and rewrites them to be crystal clear, action-oriented, and conversion-focused.
-                </p>
-                <div class="hero-cta-group">
-                    <a href="#analyzer" class="btn btn-primary">
-                        🚀 Start Free Analysis
-                    </a>
-                    <a href="#examples" class="btn btn-secondary">
-                        👀 See Examples
-                    </a>
-                </div>
-                
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number">247%</div>
-                        <div class="stat-label">Avg Conversion Lift</div>
+    <div class="hero-section section-padding text-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="hero-badge mb-4">
+                        <span class="badge text-black px-4 py-2 fs-6 fw-normal" style="background: linear-gradient(135deg, var(--color-orange), var(--color-orange-light)); border-radius: 50px;">
+                            <i class="fas fa-wand-magic-sparkles me-2"></i>AI-Powered CTA Optimization
+                        </span>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number">10K+</div>
-                        <div class="stat-label">CTAs Optimized</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">5 Sec</div>
-                        <div class="stat-label">Analysis Time</div>
-                    </div>
+                    <h1 class="hero-title display-4 fw-bold mb-4 text-black">
+                        Transform Vague CTAs into
+                        <span class="text-primary">High-Converting Actions</span>
+                    </h1>
+                    <p class="hero-subtitle lead mb-5 text-muted" style="font-size: 1.2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Upload your website or design to automatically detect CTAs and get AI-powered 
+                        suggestions that tell users EXACTLY what to do. Turn "Learn More" into 
+                        "Watch Our 3-Minute Product Demo" and boost conversion rates.
+                    </p>
                 </div>
             </div>
-
-            <!-- Main Input Interface -->
-            <div class="input-interface" id="analyzer">
-                <div class="interface-header">
-                    <h2 class="interface-title">Analyze Your CTAs</h2>
-                    <p class="interface-subtitle">Choose your input method and get instant literal improvements</p>
-                </div>
-
-                <!-- Enhanced Tab System -->
-                <div class="tab-system">
-                    <div class="tab-navigation">
-                        <div class="tab-indicator" id="tabIndicator"></div>
-                        <button class="tab-button active" data-tab="url" onclick="switchTab('url')">
-                            <span class="tab-icon">🌐</span>
-                            <span>Website URL</span>
-                        </button>
-                        <button class="tab-button" data-tab="image" onclick="switchTab('image')">
-                            <span class="tab-icon">📷</span>
-                            <span>Upload Image</span>
-                        </button>
-                        <button class="tab-button" data-tab="text" onclick="switchTab('text')">
-                            <span class="tab-icon">📝</span>
-                            <span>Direct Text</span>
-                        </button>
-                    </div>
-
-                    <form action="/analyze" method="POST" enctype="multipart/form-data" id="analysisForm">
-                        <!-- URL Tab -->
-                        <div class="tab-content active" id="url-tab">
-                            <div class="form-group">
-                                <label class="form-label" for="url">
-                                    <span class="tab-icon">🌐</span> Website URL Analysis
-                                </label>
-                                <input type="url" 
-                                       class="form-input" 
-                                       id="url" 
-                                       name="url" 
-                                       placeholder="https://yourwebsite.com"
-                                       pattern="https?://.*">
-                                <small style="color: var(--color-minder); margin-top: 1rem; display: block; font-size: 0.95rem;">
-                                    We'll intelligently crawl your site and extract all CTAs for analysis
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Image Tab -->
-                        <div class="tab-content" id="image-tab">
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <span class="tab-icon">📷</span> Upload Screenshot or Design
-                                </label>
-                                <div class="upload-zone" onclick="document.getElementById('image').click()">
-                                    <div class="upload-content">
-                                        <div class="upload-icon">📤</div>
-                                        <div class="upload-text">Click to upload or drag & drop</div>
-                                        <div class="upload-subtext">Supports PNG, JPG, GIF up to 10MB</div>
-                                    </div>
-                                </div>
-                                <input type="file" 
-                                       id="image" 
-                                       name="image" 
-                                       accept=".png,.jpg,.jpeg,.gif,.webp" 
-                                       style="display: none;">
-                            </div>
-                        </div>
-
-                        <!-- Text Tab -->
-                        <div class="tab-content" id="text-tab">
-                            <div class="form-group">
-                                <label class="form-label" for="text">
-                                    <span class="tab-icon">📝</span> Paste Your CTA Text
-                                </label>
-                                <textarea class="form-input form-textarea" 
-                                          id="text" 
-                                          name="text" 
-                                          placeholder="Enter your CTAs here, one per line:
-
-Learn More
-Click Here  
-Get Started
-Try Now
-Sign Up Free"></textarea>
-                                <small style="color: var(--color-minder); margin-top: 1rem; display: block; font-size: 0.95rem;">
-                                    Paste individual CTAs or full page content - our AI will extract CTAs automatically
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Enhanced Analyze Button -->
-                        <div class="analyze-button-container">
-                            <button type="submit" class="btn btn-primary" id="analyzeBtn">
-                                <span>🔍</span>
-                                <span>Analyze & Transform CTAs</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Premium Examples Showcase -->
-                <div class="examples-showcase" id="examples">
-                    <h3 class="examples-title">✨ Transformation Examples</h3>
-                    <div class="examples-grid">
-                        <div class="example-card">
-                            <div class="example-before">"Learn More"</div>
-                            <div class="example-arrow">↓</div>
-                            <div class="example-after">"Watch Our 3-Minute Product Demo"</div>
-                        </div>
-                        <div class="example-card">
-                            <div class="example-before">"Click Here"</div>
-                            <div class="example-arrow">↓</div>
-                            <div class="example-after">"Download Free Marketing Guide"</div>
-                        </div>
-                        <div class="example-card">
-                            <div class="example-before">"Get Started"</div>
-                            <div class="example-arrow">↓</div>
-                            <div class="example-after">"Create Your Free Account in 30 Seconds"</div>
-                        </div>
-                        <div class="example-card">
-                            <div class="example-before">"Submit"</div>
-                            <div class="example-arrow">↓</div>
-                            <div class="example-after">"Get My Personalized Quote Now"</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Enhanced Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3 class="loading-title">🧠 AI Processing Your CTAs...</h3>
-            <p class="loading-subtitle">
-                Our advanced AI is analyzing your call-to-actions and crafting perfectly literal, conversion-focused alternatives.
-            </p>
         </div>
     </div>
 
-    <!-- Messages Container -->
-    <div id="messages"></div>
+    <!-- Main Form Section -->
+    <div class="form-section content-spacing">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="analysis-card card hover-lift">
+                        <div class="card-header text-center py-4">
+                            <h2 class="card-title mb-2 fw-bold">
+                                <i class="fas fa-target me-3"></i>
+                                Optimize Your CTAs
+                            </h2>
+                            <p class="card-subtitle mb-0 opacity-90">
+                                Upload your design or enter URL to get specific, action-oriented CTA alternatives
+                            </p>
+                        </div>
 
-    <script>
-        // Enhanced Tab System with Indicator Animation
-        function switchTab(tabName) {
-            // Update tab indicator position
-            updateTabIndicator(tabName);
-            
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Remove active class from all buttons
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            
-            // Clear other inputs
-            if (tabName !== 'url') document.getElementById('url').value = '';
-            if (tabName !== 'image') document.getElementById('image').value = '';
-            if (tabName !== 'text') document.getElementById('text').value = '';
+                        <form action="/optimize" method="post" enctype="multipart/form-data" id="optimizationForm">
+                            <div class="card-body p-5">
+                                <!-- Step 1: Conversion Goal -->
+                                <div class="form-step mb-5">
+                                    <div class="step-header mb-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="step-number bg-orange text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 700;">1</div>
+                                            <div>
+                                                <h4 class="step-title text-black mb-1">What's your conversion goal? <span class="text-muted">(Optional)</span></h4>
+                                                <p class="step-description text-muted mb-0">Help us provide more targeted CTA suggestions</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <textarea 
+                                            class="form-control" 
+                                            id="desired_behavior" 
+                                            name="desired_behavior" 
+                                            rows="3" 
+                                            placeholder="e.g., Get users to sign up for newsletter, increase free trial signups, boost product purchases, schedule demos, etc."
+                                            style="background: rgba(124, 139, 165, 0.05); border-color: var(--color-gray-light);">
+                                        </textarea>
+                                        <div class="form-help mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-lightbulb me-1 text-orange"></i>
+                                                This helps generate more relevant CTA alternatives
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2: Input Method -->
+                                <div class="form-step">
+                                    <div class="step-header mb-4">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="step-number bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-weight: 700;">2</div>
+                                            <div>
+                                                <h4 class="step-title text-black mb-1">Upload your design or website</h4>
+                                                <p class="step-description text-muted mb-0">We'll extract all CTAs and provide optimized alternatives</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Input Tabs -->
+                                    <div class="input-tabs mb-4">
+                                        <ul class="nav nav-pills nav-fill" id="inputTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="upload-tab" data-bs-toggle="pill" data-bs-target="#upload-panel" type="button" role="tab">
+                                                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                                                    Upload Design
+                                                </button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="url-tab" data-bs-toggle="pill" data-bs-target="#url-panel" type="button" role="tab">
+                                                    <i class="fas fa-link me-2"></i>
+                                                    Website URL
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="tab-content">
+                                        <!-- File Upload Panel -->
+                                        <div class="tab-pane fade show active" id="upload-panel" role="tabpanel">
+                                            <div class="upload-area text-center p-5 border-2 border-dashed rounded-3" id="uploadArea" style="border-color: var(--color-gray-light); background: rgba(124, 139, 165, 0.03); cursor: pointer; transition: all 0.3s ease;">
+                                                <input type="file" class="d-none" id="fileInput" name="file" accept="image/*">
+                                                <div class="upload-content">
+                                                    <div class="upload-icon mb-3">
+                                                        <i class="fas fa-image" style="font-size: 3rem; color: var(--color-blue);"></i>
+                                                    </div>
+                                                    <h5 class="upload-title text-black mb-2">Drop your design here</h5>
+                                                    <p class="upload-subtitle text-muted mb-3">
+                                                        or <button type="button" class="btn-link text-primary fw-semibold text-decoration-none" onclick="document.getElementById('fileInput').click()">browse files</button>
+                                                    </p>
+                                                    <div class="upload-formats">
+                                                        <small class="text-muted">PNG, JPG, GIF, WebP • Max 16MB</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div id="filePreview" class="file-preview d-none mt-4">
+                                                <div class="preview-container d-flex align-items-center p-3 border rounded-3" style="background: rgba(124, 139, 165, 0.05);">
+                                                    <img id="previewImage" src="" alt="Preview" class="preview-image rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                                    <div class="preview-info flex-grow-1">
+                                                        <h6 class="preview-filename text-black mb-1" id="fileName"></h6>
+                                                        <small class="preview-filesize text-muted" id="fileSize"></small>
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="removeFile()">
+                                                        <i class="fas fa-times me-1"></i> Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- URL Input Panel -->
+                                        <div class="tab-pane fade" id="url-panel" role="tabpanel">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white border-end-0" style="border-color: var(--color-gray-light);">
+                                                        <i class="fas fa-link text-primary"></i>
+                                                    </span>
+                                                    <input 
+                                                        type="url" 
+                                                        class="form-control border-start-0" 
+                                                        id="design_url" 
+                                                        name="design_url" 
+                                                        placeholder="https://example.com/your-landing-page"
+                                                        style="border-color: var(--color-gray-light);">
+                                                </div>
+                                                <div class="form-help mt-2">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1 text-primary"></i>
+                                                        Enter any website URL to analyze its CTAs
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="text-center mt-5">
+                                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3" id="submitBtn" style="border-radius: 50px; font-size: 1.1rem;">
+                                        <i class="fas fa-wand-magic-sparkles me-2"></i>
+                                        <span class="btn-text">Optimize My CTAs</span>
+                                        <div class="btn-loading d-none">
+                                            <i class="fas fa-spinner fa-spin me-2"></i>
+                                            Analyzing CTAs...
+                                        </div>
+                                    </button>
+                                    <div class="submit-help text-center mt-3">
+                                        <small class="text-muted">
+                                            Analysis typically takes 10-30 seconds
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="features-section section-padding" style="background: rgba(124, 139, 165, 0.03);">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="text-black fw-bold">How It Works</h2>
+                <p class="text-muted">Three simple steps to transform your CTAs</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card card text-center p-4 h-100 hover-lift border-0" style="background: var(--color-white); box-shadow: 0 4px 20px rgba(124, 139, 165, 0.1);">
+                        <div class="feature-icon mb-3">
+                            <div class="icon-circle d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--color-blue), var(--color-blue-light)); color: white;">
+                                <i class="fas fa-search-plus" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feature-title text-black fw-semibold mb-3">Smart Detection</h5>
+                        <p class="feature-description text-muted mb-0">
+                            AI automatically finds all call-to-action elements on your page or design using advanced computer vision
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card card text-center p-4 h-100 hover-lift border-0" style="background: var(--color-white); box-shadow: 0 4px 20px rgba(124, 139, 165, 0.1);">
+                        <div class="feature-icon mb-3">
+                            <div class="icon-circle d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--color-orange), var(--color-orange-light)); color: white;">
+                                <i class="fas fa-wand-magic-sparkles" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feature-title text-black fw-semibold mb-3">AI Optimization</h5>
+                        <p class="feature-description text-muted mb-0">
+                            Transform vague CTAs into specific, action-oriented alternatives that drive measurable results
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card card text-center p-4 h-100 hover-lift border-0" style="background: var(--color-white); box-shadow: 0 4px 20px rgba(124, 139, 165, 0.1);">
+                        <div class="feature-icon mb-3">
+                            <div class="icon-circle d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--color-gray), var(--color-gray-light)); color: white;">
+                                <i class="fas fa-edit" style="font-size: 2rem;"></i>
+                            </div>
+                        </div>
+                        <h5 class="feature-title text-black fw-semibold mb-3">Editable Results</h5>
+                        <p class="feature-description text-muted mb-0">
+                            Edit suggestions in real-time and export optimized CTAs ready for implementation
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Examples Section -->
+    <div class="examples-section section-padding">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="text-black fw-bold">See the Transformation</h2>
+                <p class="text-muted">Real examples of CTA optimization in action</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="examples-grid">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="example-section">
+                                    <h5 class="text-center mb-4">
+                                        <span class="badge text-white px-3 py-2" style="background: #dc3545; border-radius: 20px;">❌ Before (Vague)</span>
+                                    </h5>
+                                    <div class="examples-list">
+                                        <div class="example-cta bad-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(220, 53, 69, 0.1); border: 2px solid rgba(220, 53, 69, 0.3); color: #721c24;">
+                                            "Learn More"
+                                        </div>
+                                        <div class="example-cta bad-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(220, 53, 69, 0.1); border: 2px solid rgba(220, 53, 69, 0.3); color: #721c24;">
+                                            "Click Here"
+                                        </div>
+                                        <div class="example-cta bad-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(220, 53, 69, 0.1); border: 2px solid rgba(220, 53, 69, 0.3); color: #721c24;">
+                                            "Get Started"
+                                        </div>
+                                        <div class="example-cta bad-cta p-3 mb-0 rounded-3 text-center fw-semibold" style="background: rgba(220, 53, 69, 0.1); border: 2px solid rgba(220, 53, 69, 0.3); color: #721c24;">
+                                            "Try Now"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="example-section">
+                                    <h5 class="text-center mb-4">
+                                        <span class="badge text-white px-3 py-2" style="background: var(--color-orange); border-radius: 20px;">✅ After (Specific)</span>
+                                    </h5>
+                                    <div class="examples-list">
+                                        <div class="example-cta good-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(255, 160, 39, 0.1); border: 2px solid var(--color-orange); color: var(--color-orange-dark);">
+                                            "Watch Our 3-Minute Demo"
+                                        </div>
+                                        <div class="example-cta good-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(255, 160, 39, 0.1); border: 2px solid var(--color-orange); color: var(--color-orange-dark);">
+                                            "Download Free Guide"
+                                        </div>
+                                        <div class="example-cta good-cta p-3 mb-3 rounded-3 text-center fw-semibold" style="background: rgba(255, 160, 39, 0.1); border: 2px solid var(--color-orange); color: var(--color-orange-dark);">
+                                            "Create Free Account"
+                                        </div>
+                                        <div class="example-cta good-cta p-3 mb-0 rounded-3 text-center fw-semibold" style="background: rgba(255, 160, 39, 0.1); border: 2px solid var(--color-orange); color: var(--color-orange-dark);">
+                                            "Start 14-Day Free Trial"
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Custom Styles for Clean Professional Look */
+.hero-section {
+    background: linear-gradient(135deg, var(--color-white) 0%, rgba(124, 139, 165, 0.05) 100%);
+}
+
+.step-number {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.nav-pills .nav-link {
+    color: var(--color-gray);
+    border: 2px solid var(--color-gray-light);
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: var(--color-blue);
+    border-color: var(--color-blue);
+    color: white;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+    background: rgba(124, 139, 165, 0.1);
+    border-color: var(--color-gray);
+    color: var(--color-black);
+}
+
+.upload-area:hover {
+    border-color: var(--color-blue) !important;
+    background: rgba(20, 130, 255, 0.05) !important;
+    transform: translateY(-2px);
+}
+
+.upload-area.dragover {
+    border-color: var(--color-blue) !important;
+    background: rgba(20, 130, 255, 0.1) !important;
+    transform: scale(1.02);
+}
+
+.btn-link {
+    color: var(--color-blue) !important;
+    text-decoration: none !important;
+}
+
+.btn-link:hover {
+    color: var(--color-blue-dark) !important;
+}
+
+.example-cta {
+    transition: transform 0.3s ease;
+}
+
+.example-cta:hover {
+    transform: translateY(-3px);
+}
+
+.input-group-text {
+    background: var(--color-white);
+    border-color: var(--color-gray-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .step-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin-bottom: 1rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem !important;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .section-padding {
+        padding: 2rem 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const filePreview = document.getElementById('filePreview');
+    const previewImage = document.getElementById('previewImage');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const optimizationForm = document.getElementById('optimizationForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
+    // Drag and drop functionality
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            handleFile(files[0]);
+        }
+    });
+
+    // Click to select file
+    uploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    // File input change
+    fileInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            handleFile(this.files[0]);
+        }
+    });
+
+    // Tab switching - clear URL when switching to upload
+    document.getElementById('upload-tab').addEventListener('click', function() {
+        document.getElementById('design_url').value = '';
+    });
+
+    // Tab switching - clear file when switching to URL
+    document.getElementById('url-tab').addEventListener('click', function() {
+        removeFile();
+    });
+
+    function handleFile(file) {
+        // Validate file type
+        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/bmp', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please upload a valid image file (PNG, JPG, JPEG, GIF, BMP, WebP)');
+            return;
         }
 
-        function updateTabIndicator(tabName) {
-            const indicator = document.getElementById('tabIndicator');
-            const buttons = document.querySelectorAll('.tab-button');
-            let activeIndex = 0;
-            
-            buttons.forEach((button, index) => {
-                if (button.getAttribute('data-tab') === tabName) {
-                    activeIndex = index;
-                }
-            });
-            
-            const buttonWidth = 100 / buttons.length;
-            indicator.style.width = `calc(${buttonWidth}% - 1rem)`;
-            indicator.style.transform = `translateX(calc(${activeIndex * 100}% + 0.5rem))`;
+        // Validate file size (16MB max)
+        if (file.size > 16 * 1024 * 1024) {
+            alert('File size must be less than 16MB');
+            return;
         }
 
-        // Initialize tab indicator
-        document.addEventListener('DOMContentLoaded', function() {
-            updateTabIndicator('url');
-        });
+        // Update file input
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
 
-        // Enhanced file upload with preview
-        document.getElementById('image').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const uploadZone = document.querySelector('.upload-zone .upload-content');
-                uploadZone.innerHTML = `
-                    <div class="upload-icon" style="color: var(--color-blue);">✅</div>
-                    <div class="upload-text" style="color: var(--color-blue);">File Selected: ${file.name}</div>
-                    <div class="upload-subtext">Click to change file • ${(file.size / 1024 / 1024).toFixed(1)}MB</div>
-                `;
-            }
-        });
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+    }
 
-        // Enhanced drag and drop with animations
-        const uploadZone = document.querySelector('.upload-zone');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
+    window.removeFile = function() {
+        fileInput.value = '';
+        filePreview.classList.add('d-none');
+    };
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Form submission with loading state
+    optimizationForm.addEventListener('submit', function(e) {
+        const designUrl = document.getElementById('design_url').value.trim();
+        const fileSelected = fileInput.files.length > 0;
+
+        if (!designUrl && !fileSelected) {
             e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadZone.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight(e) {
-            uploadZone.classList.add('dragover');
-        }
-        
-        function unhighlight(e) {
-            uploadZone.classList.remove('dragover');
-        }
-        
-        uploadZone.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0) {
-                document.getElementById('image').files = files;
-                const file = files[0];
-                const uploadContent = document.querySelector('.upload-zone .upload-content');
-                uploadContent.innerHTML = `
-                    <div class="upload-icon" style="color: var(--color-blue);">✅</div>
-                    <div class="upload-text" style="color: var(--color-blue);">File Dropped: ${file.name}</div>
-                    <div class="upload-subtext">Ready for analysis • ${(file.size / 1024 / 1024).toFixed(1)}MB</div>
-                `;
-            }
+            alert('Please provide either a website URL or upload an image file');
+            return;
         }
 
-        // Enhanced form validation and submission
-        document.getElementById('analysisForm').addEventListener('submit', function(e) {
-            const activeTab = document.querySelector('.tab-content.active').id;
-            const url = document.getElementById('url').value.trim();
-            const image = document.getElementById('image').files[0];
-            const text = document.getElementById('text').value.trim();
-            
-            // Advanced validation
-            if (activeTab === 'url-tab' && !url) {
-                showMessage('Please enter a valid website URL to analyze', 'error');
-                e.preventDefault();
-                return;
-            }
-            
-            if (activeTab === 'image-tab' && !image) {
-                showMessage('Please select an image file to upload and analyze', 'error');
-                e.preventDefault();
-                return;
-            }
-            
-            if (activeTab === 'text-tab' && !text) {
-                showMessage('Please enter some CTA text to analyze and improve', 'error');
-                e.preventDefault();
-                return;
-            }
-            
-            // Show enhanced loading
-            showEnhancedLoading();
-        });
-
-        function showEnhancedLoading() {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.style.display = 'flex';
-            
-            // Add some dynamic loading text updates
-            const loadingTitle = document.querySelector('.loading-title');
-            const messages = [
-                "🧠 AI Processing Your CTAs...",
-                "🔍 Analyzing Literalness Scores...",
-                "✨ Crafting Perfect Alternatives...",
-                "🎯 Optimizing for Conversions..."
-            ];
-            
-            let messageIndex = 0;
-            const messageInterval = setInterval(() => {
-                messageIndex = (messageIndex + 1) % messages.length;
-                loadingTitle.textContent = messages[messageIndex];
-            }, 2000);
-            
-            // Store interval ID to clear it later if needed
-            overlay.messageInterval = messageInterval;
-        }
-
-        // Enhanced message system with animations
-        function showMessage(text, type) {
-            const messagesContainer = document.getElementById('messages');
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            message.textContent = text;
-            message.style.display = 'block';
-            message.style.animation = 'slideUp 0.3s ease-out';
-            
-            messagesContainer.appendChild(message);
-            
-            setTimeout(() => {
-                message.style.animation = 'fadeOut 0.3s ease-out';
-                setTimeout(() => message.remove(), 300);
-            }, 5000);
-        }
-
-        // Smooth scrolling for navigation
-        document.querySelectorAll('.nav-links a, .hero-cta-group a').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                if (this.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Flash messages from server with enhanced styling
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        setTimeout(() => showMessage('{{ message }}', '{{ category }}'), 200);
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-    </script>
-</body>
-</html>
+        // Show loading state
+        btnText.classList.add('d-none');
+        btnLoading.classList.remove('d-none');
+        submitBtn.disabled = true;
+    });
+});
+</script>
+{% endblock %}

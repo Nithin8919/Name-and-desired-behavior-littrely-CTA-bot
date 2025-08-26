@@ -1,181 +1,352 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
-import os, time
+# main.py - CTA Optimization Bot
+from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, send_file
+from flask_cors import CORS
+import os, time, base64, requests, json, re
+from io import BytesIO
+from PIL import Image
 from werkzeug.utils import secure_filename
-from pathlib import Path
-import traceback
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.lib import colors
 
-# Import our analyzer (will create next)
-from cta_analyzer import CTALiteralAnalyzer
+# Import the analyzer (using the same robust analyzer but with updated system prompt)
+try:
+    from robust_analyzer import RobustCTAAnalyzer
+    ANALYZER_TYPE = "robust"
+except ImportError:
+    try:
+        from enhanced_analyzer import FixedCTAAnalyzer as RobustCTAAnalyzer
+        ANALYZER_TYPE = "enhanced"
+    except ImportError:
+        from analyzer import CTAAnalyzer as RobustCTAAnalyzer
+        ANALYZER_TYPE = "basic"
+
+# Pillow compatibility
+if not hasattr(Image, 'ANTIALIAS'):
+    Image.ANTIALIAS = Image.LANCZOS
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = 'cta-optimization-bot-secret-key-2024'
+CORS(app)
 
-# Configuration
-UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
-
-# Ensure upload directory exists
+UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
-# Initialize analyzer
-analyzer = None
+# Initialize the robust analyzer
 try:
-    analyzer = CTALiteralAnalyzer()
-    print("✅ CTA Literal Analyzer initialized successfully")
+    analyzer = RobustCTAAnalyzer()
+    print(f"✅ {ANALYZER_TYPE.title()} CTA Optimization Bot initialized successfully")
 except Exception as e:
     print(f"❌ Failed to initialize analyzer: {e}")
+    analyzer = None
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png','jpg','jpeg','gif','bmp','webp'}
+
+def _ensure_min_width(img: Image.Image, min_w: int = 1024):
+    """Upscale narrow screenshots for better OCR"""
+    if img.width >= min_w:
+        return img, None
+    scale = float(min_w) / float(img.width)
+    new_size = (min_w, int(round(img.height * scale)))
+    up = img.resize(new_size, Image.LANCZOS)
+    buf = BytesIO()
+    up.save(buf, format="PNG")
+    return up, buf.getvalue()
+
+# CTA optimization is now handled by the RobustCTAAnalyzer class methods
 
 @app.route('/')
 def index():
-    """Main page with three input options"""
     return render_template('index.html')
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    """Main analysis endpoint handling URL, image, or text input"""
+@app.route('/optimize', methods=['POST'])
+def optimize_ctas():
+    """Main CTA optimization endpoint"""
     if not analyzer:
-        flash('Analyzer not initialized. Check OpenAI API key.', 'error')
+        flash('Analyzer not initialized. Please check server configuration.', 'error')
         return redirect(url_for('index'))
-        
+    
+    design_url = request.form.get('design_url', '').strip()
+    desired_behavior = request.form.get('desired_behavior', '').strip()
+    
     try:
-        start_time = time.time()
-        source_type = None
-        source_url = None
+        start = time.time()
+        results = None
+        image_bytes = b''
+        filename = None
         
-        # Handle URL analysis
-        if 'url' in request.form and request.form['url'].strip():
-            url = request.form['url'].strip()
-            print(f"🔍 Analyzing URL: {url}")
-            results = analyzer.analyze_url(url)
-            source_type = 'url'
-            source_url = url
+        # URL Analysis
+        if design_url:
+            print(f"🌐 Starting CTA optimization for URL: {design_url}")
             
-        # Handle image upload
-        elif 'image' in request.files and request.files['image'].filename:
-            file = request.files['image']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                timestamp = str(int(time.time()))
-                filename = f"{timestamp}_{filename}"
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-                
-                print(f"📷 Analyzing image: {filename}")
-                results = analyzer.analyze_image(filepath)
-                source_type = 'image'
-                source_url = filepath
-            else:
-                flash('Invalid image file. Please upload PNG, JPG, or GIF.', 'error')
+            # Use the new CTA optimization method
+            optimization_results = analyzer.optimize_from_url(design_url, desired_behavior)
+            
+            if optimization_results.get('error'):
+                flash(f'URL analysis failed: {optimization_results.get("message", "Unknown error")}', 'error')
+                return redirect(url_for('index'))
+            
+            source_type = 'URL'
+            filename = design_url.split('/')[-1] or 'webpage-analysis'
+            meta = optimization_results.get('meta', {})
+            image_dims = f"{meta.get('width', 'N/A')}x{meta.get('height', 'N/A')}"
+            
+        # File Upload Analysis
+        elif 'file' in request.files and request.files['file'].filename:
+            print("📁 Starting file upload CTA optimization")
+            file = request.files['file']
+            if not allowed_file(file.filename):
+                flash('Invalid file type. Upload PNG/JPG/JPEG/GIF/BMP/WebP', 'error')
                 return redirect(url_for('index'))
                 
-        # Handle direct text input
-        elif 'text' in request.form and request.form['text'].strip():
-            text = request.form['text'].strip()
-            print(f"📝 Analyzing text: {text[:100]}...")
-            results = analyzer.analyze_text(text)
-            source_type = 'text'
-            
+            try:
+                source_type = 'Upload'
+                image_bytes = file.read()
+                image = Image.open(BytesIO(image_bytes)).convert('RGB')
+                filename = secure_filename(file.filename)
+                
+                # Optional upscale for better OCR
+                image, up_bytes = _ensure_min_width(image, min_w=1024)
+                if up_bytes is not None:
+                    image_bytes = up_bytes
+
+                # Use the new CTA optimization method for images
+                optimization_results = analyzer.optimize_from_image(image, desired_behavior)
+                
+                if optimization_results.get('error'):
+                    flash(f'Image analysis failed: {optimization_results.get("message", "Unknown error")}', 'error')
+                    return redirect(url_for('index'))
+                
+                image_dims = f"{image.width}x{image.height}"
+                
+            except Exception as e:
+                flash(f'Error processing upload: {str(e)}', 'error')
+                return redirect(url_for('index'))
         else:
-            flash('Please provide a URL, upload an image, or enter text to analyze.', 'error')
+            flash('Provide a design URL or upload an image', 'error')
             return redirect(url_for('index'))
-            
-        if results.get('error'):
-            flash(f'Analysis failed: {results["error"]}', 'error')
-            return redirect(url_for('index'))
-            
+
+        processing_time = round(time.time() - start, 2)
+        print(f"✅ CTA Optimization completed in {processing_time}s")
+
         # Process results for template
-        extracted_ctas = results.get('extracted_ctas', [])
-        optimizations = results.get('optimizations', [])
+        optimizations = optimization_results.get('optimizations', [])
+        summary = optimization_results.get('summary', {})
         
-        # Calculate statistics
-        total_ctas = len(extracted_ctas)
-        avg_literalness = sum(opt.get('literalness_score', 0) for opt in optimizations) / max(len(optimizations), 1)
-        processing_time = time.time() - start_time
-        
-        # Prepare data for template
-        analysis_data = {
-            'total_ctas': total_ctas,
-            'avg_literalness': round(avg_literalness, 1),
-            'processing_time': f"{processing_time:.1f}s",
-            'source_type': source_type,
-            'source_url': source_url,
-            'extracted_ctas': extracted_ctas,
+        optimization_data = {
             'optimizations': optimizations,
-            'has_improvements': len([opt for opt in optimizations if opt.get('literalness_improvement', 0) > 2]) > 0
+            'summary': summary,
+            'image_data': base64.b64encode(image_bytes).decode('utf-8') if image_bytes else '',
+            'filename': filename,
+            'processing_time': processing_time,
+            'image_dims': image_dims if 'image_dims' in locals() else 'N/A',
+            'desired_behavior': desired_behavior,
+            'design_source': source_type,
+            'source_url': design_url if design_url else None,
+            'analyzer_type': ANALYZER_TYPE,
+            'total_ctas_found': len(optimizations)
         }
         
-        return render_template('results.html', data=analysis_data)
+        return render_template('results.html', data=optimization_data)
         
     except Exception as e:
-        print(f"❌ Analysis failed: {str(e)}")
-        traceback.print_exc()
-        flash(f'Analysis failed: {str(e)}', 'error')
+        print(f"❌ Optimization failed: {str(e)}")
+        flash(f'CTA optimization failed: {str(e)}', 'error')
         return redirect(url_for('index'))
 
-@app.route('/api/update-cta', methods=['POST'])
-def update_cta():
-    """API endpoint to update CTA text in the editable table"""
-    try:
-        data = request.get_json()
-        cta_id = data.get('cta_id')
-        new_text = data.get('new_text', '').strip()
+@app.route('/api/optimize', methods=['POST'])
+def api_optimize():
+    """API endpoint for CTA optimization"""
+    if not analyzer:
+        return jsonify({"error": "Analyzer not initialized"}), 500
         
-        if not cta_id or not new_text:
-            return jsonify({'success': False, 'error': 'Missing CTA ID or text'})
+    try:
+        start = time.time()
+        
+        # Handle JSON requests (URL analysis)
+        if request.is_json:
+            data = request.get_json()
+            design_url = data.get('design_url', '').strip()
+            desired_behavior = data.get('desired_behavior', '').strip()
             
-        # In a real app, you'd save this to database
-        # For now, just return success
-        return jsonify({
-            'success': True, 
-            'message': f'CTA updated successfully',
-            'updated_text': new_text
-        })
+            if not design_url:
+                return jsonify({"error": "No design_url provided"}), 400
+                
+            # Extract CTAs first
+            raw_results = analyzer.analyze_url(design_url, desired_behavior=desired_behavior)
+            
+            if raw_results.get('error'):
+                return jsonify({"error": raw_results.get('message', 'URL analysis failed')}), 500
+                
+            cta_texts = extract_cta_texts(raw_results.get('ctas', []))
+            if not cta_texts:
+                return jsonify({"error": "No CTAs found on webpage"}), 400
+                
+            # Optimize CTAs
+            optimization_results = optimize_ctas_with_ai(cta_texts, desired_behavior, analyzer)
+            
+        # Handle file uploads
+        else:
+            if 'image' not in request.files:
+                return jsonify({"error": "No image file provided"}), 400
+                
+            f = request.files['image']
+            if f.filename == '':
+                return jsonify({"error": "No image file selected"}), 400
+                
+            if not allowed_file(f.filename):
+                return jsonify({"error": "Invalid file type"}), 400
+
+            desired_behavior = request.form.get('desired_behavior', '').strip()
+
+            image_bytes = f.read()
+            image = Image.open(BytesIO(image_bytes)).convert('RGB')
+            image, _ = _ensure_min_width(image, min_w=1024)
+
+            # Extract CTAs first
+            raw_results = analyzer.analyze(image, desired_behavior=desired_behavior)
+            cta_texts = extract_cta_texts(raw_results.get('ctas', []))
+            
+            if not cta_texts:
+                return jsonify({"error": "No CTAs found in image"}), 400
+                
+            # Optimize CTAs
+            optimization_results = optimize_ctas_with_ai(cta_texts, desired_behavior, analyzer)
+
+        processing_time = round(time.time() - start, 2)
+
+        # Format API response
+        api_response = {
+            "success": True,
+            "optimizations": optimization_results.get("optimizations", []),
+            "summary": optimization_results.get("summary", {}),
+            "meta": {
+                "processing_time": f"{processing_time}s",
+                "desired_behavior": desired_behavior or None,
+                "analyzer_type": ANALYZER_TYPE,
+                "total_ctas_optimized": len(optimization_results.get("optimizations", []))
+            }
+        }
+        
+        return jsonify(api_response)
         
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        print(f"❌ API Error: {e}")
+        return jsonify({"error": f"Processing failed: {e}"}), 500
 
-@app.route('/api/export', methods=['POST'])
-def export_results():
-    """Export results as CSV"""
+@app.get('/api/health')
+def health():
+    analyzer_status = "healthy" if analyzer else "error"
+    
+    return {
+        "status": analyzer_status, 
+        "service": "CTA Optimization Bot API", 
+        "version": "1.0.0",
+        "features": [
+            "cta_extraction", 
+            "ai_optimization", 
+            "url_analysis",
+            "image_analysis", 
+            "editable_results",
+            "csv_export"
+        ],
+        "analyzer_initialized": analyzer is not None,
+        "analyzer_type": ANALYZER_TYPE
+    }
+
+@app.route('/debug')
+def debug_analyzer():
+    """Debug endpoint to check analyzer capabilities"""
+    if not analyzer:
+        return jsonify({"error": "Analyzer not initialized"})
+    
+    debug_info = {
+        "analyzer_type": ANALYZER_TYPE,
+        "methods_available": getattr(analyzer, 'methods', {}),
+        "ocr_initialized": hasattr(analyzer, 'ocr'),
+        "client_initialized": hasattr(analyzer, 'client'),
+        "model": getattr(analyzer, 'model', 'unknown'),
+        "optimization_mode": "enabled"
+    }
+    
+    return jsonify(debug_info)
+
+@app.route('/download-csv', methods=['POST'])
+def download_csv():
+    """Generate and download optimization results as CSV"""
     try:
         data = request.get_json()
-        format_type = data.get('format', 'csv')
+        if not data or 'optimizations' not in data:
+            return jsonify({"error": "No optimization data provided"}), 400
+            
+        import csv
+        from io import StringIO
         
-        # In a real app, you'd generate and return the file
-        # For now, just simulate
-        return jsonify({
-            'success': True,
-            'download_url': '/static/exports/cta_improvements.csv',
-            'message': f'Results exported as {format_type.upper()}'
-        })
+        # Create CSV in memory
+        output = StringIO()
+        writer = csv.writer(output)
+        
+        # Write headers
+        writer.writerow([
+            'Original CTA',
+            'Optimized CTA', 
+            'Original Score',
+            'Improved Score',
+            'Improvement',
+            'Rationale',
+            'Action Words Added',
+            'Specificity Added',
+            'Confidence Score'
+        ])
+        
+        # Write data
+        for opt in data.get('optimizations', []):
+            writer.writerow([
+                opt.get('original_text', ''),
+                opt.get('optimized_text', ''),
+                opt.get('literalness_score', ''),
+                opt.get('literalness_improvement', ''),
+                opt.get('literalness_improvement', 0) - opt.get('literalness_score', 0),
+                opt.get('improvement_rationale', ''),
+                ', '.join(opt.get('action_words_added', [])),
+                opt.get('specificity_added', ''),
+                opt.get('confidence_score', '')
+            ])
+        
+        # Create response
+        csv_content = output.getvalue()
+        output.close()
+        
+        response = app.response_class(
+            csv_content,
+            mimetype='text/csv',
+            headers={"Content-disposition": f"attachment; filename=cta-optimizations-{int(time.time())}.csv"}
+        )
+        
+        return response
         
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
-
-@app.errorhandler(413)
-def too_large(e):
-    flash('File too large. Maximum size is 10MB.', 'error')
-    return redirect(url_for('index'))
+        print(f"❌ CSV generation failed: {e}")
+        return jsonify({"error": f"CSV generation failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 8000))  # Changed default port to 8000
+    port = int(os.environ.get('PORT', 5001))
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
     
-    print(f"""
-🎯 CTA Literally Bot Server Starting...
-   
-   📍 URL: http://localhost:{port}
-   🔧 Debug: {debug_mode}
-   🤖 Analyzer: {"✅ Ready" if analyzer else "❌ Not initialized"}
-   
-   Ready to make your CTAs literally better! 🚀
-""")
+    print("🚀 Starting CTA Optimization Bot...")
+    print(f"📡 Server will run on port {port}")
+    print(f"🔧 Debug mode: {debug_mode}")
+    print(f"🤖 Analyzer type: {ANALYZER_TYPE}")
+    
+    if analyzer:
+        print("✅ CTA Optimization Bot ready!")
+        print("🎯 Transform vague CTAs into high-converting actions!")
+    else:
+        print("❌ Analyzer not initialized - check your configuration")
     
     app.run(host='0.0.0.0', port=port, debug=debug_mode)

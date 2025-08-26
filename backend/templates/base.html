@@ -3,619 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}Transform vague CTAs into crystal-clear conversion machines with AI-powered analysis and optimization.{% endblock %}">
-    <meta name="keywords" content="CTA optimization, conversion rate optimization, call-to-action, AI marketing, conversion tools">
-    <meta name="author" content="CTA Literally Bot">
+    <title>{% block title %}CTA Optimization Bot{% endblock %}</title>
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="{% block og_title %}CTA Literally Bot - Transform Vague CTAs into Conversion Machines{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}AI-powered CTA analysis that transforms vague call-to-actions into specific, conversion-focused alternatives.{% endblock %}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:image" content="{% block og_image %}/static/images/og-image.jpg{% endblock %}">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{% block twitter_title %}CTA Literally Bot{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}Transform vague CTAs into conversion machines{% endblock %}">
-    
-    <title>{% block title %}CTA Literally Bot - AI-Powered CTA Optimization{% endblock %}</title>
-    
-    <!-- Preconnect for Performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* Your Custom Color Palette */
+            /* Your Specified Color Palette */
             --color-black: #000000;
-            --color-minder: #7C8DA5;
+            --color-gray: #7C8BA5;
             --color-white: #FFFFFF;
-            --color-blue: #1B87FF;
-            --color-orange: #FFA927;
+            --color-blue: #1482FF;
+            --color-orange: #FFA027;
             
-            /* Extended Color Palette */
-            --color-success: #10b981;
-            --color-warning: #f59e0b;
-            --color-danger: #ef4444;
-            --color-info: #3b82f6;
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, #0D2FFF 0%, #0073FF 100%);
-            --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            --gradient-cta: linear-gradient(135deg, #FC332C 0%, #FF8522 100%);
-            --gradient-background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
-            
-            /* Glass Effects */
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --glass-hover: rgba(255, 255, 255, 0.08);
-            
-            /* Shadows */
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.2);
-            --shadow-xl: 0 16px 64px rgba(0, 0, 0, 0.25);
-            
-            /* Transitions */
-            --transition-fast: 0.15s ease;
-            --transition-base: 0.3s ease;
-            --transition-slow: 0.5s ease;
-            
-            /* Border Radius */
-            --radius-sm: 8px;
-            --radius-base: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 25px;
+            /* Derived Colors */
+            --color-gray-light: #A8B3C8;
+            --color-gray-dark: #5A6B7D;
+            --color-blue-light: #4A9AFF;
+            --color-blue-dark: #0066CC;
+            --color-orange-light: #FFB347;
+            --color-orange-dark: #E6900B;
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--gradient-background);
-            color: var(--color-white);
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background: var(--color-white);
+            color: var(--color-black);
+            margin: 0;
             line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Animated Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(29, 135, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 169, 39, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 50%);
-            z-index: -1;
-            animation: backgroundShift 25s ease-in-out infinite;
-        }
-
-        @keyframes backgroundShift {
-            0%, 100% { transform: translateX(0) translateY(0); }
-            25% { transform: translateX(-15px) translateY(-10px); }
-            50% { transform: translateX(15px) translateY(10px); }
-            75% { transform: translateX(-10px) translateY(15px); }
         }
 
         /* Navigation */
         .navbar {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 100;
-            padding: 1.5rem 0;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            transition: var(--transition-base);
+            background: var(--color-white) !important;
+            border-bottom: 2px solid var(--color-gray);
+            box-shadow: 0 2px 10px rgba(124, 139, 165, 0.1);
         }
 
-        .navbar.scrolled {
-            padding: 1rem 0;
-            background: rgba(0, 0, 0, 0.95);
-        }
-
-        .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
+        .navbar-brand {
+            font-weight: 700;
             font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--color-white);
-            text-decoration: none;
-            transition: var(--transition-base);
+            color: var(--color-black) !important;
         }
 
-        .logo:hover {
-            color: var(--color-blue);
-            transform: scale(1.05);
+        .navbar-brand i {
+            color: var(--color-orange);
+            margin-right: 0.5rem;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            list-style: none;
-        }
-
-        .nav-links a {
-            color: var(--color-minder);
-            text-decoration: none;
+        .nav-link {
+            color: var(--color-gray) !important;
             font-weight: 500;
-            transition: var(--transition-base);
-            position: relative;
-            padding: 0.5rem 0;
+            transition: color 0.3s ease;
         }
 
-        .nav-links a:hover {
-            color: var(--color-blue);
+        .nav-link:hover {
+            color: var(--color-blue) !important;
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gradient-primary);
-            transition: width var(--transition-base);
+        /* Main Container */
+        .container-main {
+            min-height: calc(100vh - 80px);
+            padding: 0;
         }
 
-        .nav-links a:hover::after {
-            width: 100%;
+        /* Cards */
+        .card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-light);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(124, 139, 165, 0.1);
         }
 
-        /* Button System */
-        .btn {
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: var(--radius-base);
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-base);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            font-family: inherit;
+        .card-header {
+            background: var(--color-blue);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0 !important;
+            color: var(--color-white);
         }
 
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
+        /* Buttons */
         .btn-primary {
-            background: var(--gradient-primary);
+            background: var(--color-blue);
+            border: 2px solid var(--color-blue);
             color: var(--color-white);
-            box-shadow: 0 4px 15px rgba(13, 47, 255, 0.3);
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
         }
 
-        .btn-primary:hover:not(:disabled) {
+        .btn-primary:hover {
+            background: var(--color-blue-dark);
+            border-color: var(--color-blue-dark);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(13, 47, 255, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--glass-bg);
-            color: var(--color-white);
-            border: 2px solid var(--glass-border);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-secondary:hover {
-            background: var(--glass-hover);
-            border-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(20, 130, 255, 0.3);
         }
 
         .btn-success {
-            background: var(--gradient-success);
+            background: var(--color-orange);
+            border: 2px solid var(--color-orange);
             color: var(--color-white);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-success:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-warning {
-            background: var(--gradient-warning);
-            color: var(--color-white);
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        .btn-danger {
-            background: var(--gradient-danger);
-            color: var(--color-white);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .btn-lg {
-            padding: 1.25rem 2.5rem;
-            font-size: 1.125rem;
-        }
-
-        .btn-xl {
-            padding: 1.5rem 3rem;
-            font-size: 1.25rem;
-        }
-
-        /* Glass Card System */
-        .glass-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
-            backdrop-filter: blur(20px);
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-base);
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Message System */
-        .message {
-            padding: 1.5rem 2rem;
-            border-radius: var(--radius-base);
-            margin: 1rem 0;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1px solid;
-            box-shadow: var(--shadow-md);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .message::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-        }
-
-        .message.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--color-success);
-            border-color: rgba(16, 185, 129, 0.2);
-        }
-
-        .message.success::before {
-            background: var(--color-success);
-        }
-
-        .message.error {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--color-danger);
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-
-        .message.error::before {
-            background: var(--color-danger);
-        }
-
-        .message.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--color-warning);
-            border-color: rgba(245, 158, 11, 0.2);
-        }
-
-        .message.warning::before {
-            background: var(--color-warning);
-        }
-
-        .message.info {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--color-info);
-            border-color: rgba(59, 130, 246, 0.2);
-        }
-
-        .message.info::before {
-            background: var(--color-info);
-        }
-
-        /* Loading System */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .loading-content {
-            text-align: center;
-            color: var(--color-white);
-            max-width: 500px;
-            padding: 2rem;
-        }
-
-        .loading-spinner {
-            width: 80px;
-            height: 80px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid var(--color-blue);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 2rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .loading-subtitle {
-            color: var(--color-minder);
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
+            border-radius: 8px;
             font-weight: 600;
-            margin-bottom: 0.8rem;
-            color: var(--color-white);
-            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
         }
 
-        .form-input,
-        .form-textarea,
-        .form-select {
-            width: 100%;
-            padding: 1rem;
-            background: var(--glass-bg);
-            border: 2px solid var(--glass-border);
-            border-radius: var(--radius-base);
-            color: var(--color-white);
-            font-size: 1rem;
-            font-weight: 500;
-            transition: var(--transition-base);
-            backdrop-filter: blur(10px);
-            font-family: inherit;
+        .btn-success:hover {
+            background: var(--color-orange-dark);
+            border-color: var(--color-orange-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 160, 39, 0.3);
         }
 
-        .form-input:focus,
-        .form-textarea:focus,
-        .form-select:focus {
-            outline: none;
+        .btn-outline-primary {
+            border: 2px solid var(--color-blue);
+            color: var(--color-blue);
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--color-blue);
             border-color: var(--color-blue);
-            box-shadow: 0 0 0 4px rgba(29, 135, 255, 0.1);
-            background: var(--glass-hover);
+            color: var(--color-white);
         }
 
-        .form-input::placeholder,
-        .form-textarea::placeholder {
-            color: var(--color-minder);
+        .btn-outline-secondary {
+            border: 2px solid var(--color-gray);
+            color: var(--color-gray);
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 500;
         }
 
-        .form-textarea {
-            min-height: 120px;
-            resize: vertical;
+        .btn-outline-secondary:hover {
+            background: var(--color-gray);
+            border-color: var(--color-gray);
+            color: var(--color-white);
         }
 
-        /* Responsive Utilities */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 2rem;
+        /* Alerts */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
         }
 
-        .text-center {
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-success {
+            background: rgba(255, 160, 39, 0.1);
+            color: var(--color-orange-dark);
+            border-left: 4px solid var(--color-orange);
+        }
+
+        /* Text Colors */
+        .text-primary {
+            color: var(--color-blue) !important;
+        }
+
+        .text-muted {
+            color: var(--color-gray) !important;
+        }
+
+        .text-black {
+            color: var(--color-black) !important;
+        }
+
+        .text-orange {
+            color: var(--color-orange) !important;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--color-black);
+            color: var(--color-white);
             text-align: center;
+            padding: 2rem 0;
+            margin-top: auto;
         }
 
-        .text-left {
-            text-align: left;
+        .footer p {
+            margin: 0;
+            color: var(--color-gray-light);
         }
 
-        .text-right {
-            text-align: right;
+        .footer .text-primary {
+            color: var(--color-orange) !important;
         }
 
-        /* Spacing Utilities */
-        .mt-1 { margin-top: 0.5rem; }
-        .mt-2 { margin-top: 1rem; }
-        .mt-3 { margin-top: 1.5rem; }
-        .mt-4 { margin-top: 2rem; }
-
-        .mb-1 { margin-bottom: 0.5rem; }
-        .mb-2 { margin-bottom: 1rem; }
-        .mb-3 { margin-bottom: 1.5rem; }
-        .mb-4 { margin-bottom: 2rem; }
-
-        .p-1 { padding: 0.5rem; }
-        .p-2 { padding: 1rem; }
-        .p-3 { padding: 1.5rem; }
-        .p-4 { padding: 2rem; }
-
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .container {
-                padding: 0 1.5rem;
-            }
-            
-            .nav-container {
-                padding: 0 1.5rem;
-            }
+        /* Background Patterns */
+        .bg-pattern {
+            background: linear-gradient(135deg, var(--color-white) 0%, rgba(124, 139, 165, 0.05) 100%);
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 1rem;
+        .bg-accent {
+            background: linear-gradient(135deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+        }
+
+        .bg-orange {
+            background: var(--color-orange);
+        }
+
+        /* Utility Classes */
+        .border-blue {
+            border-color: var(--color-blue) !important;
+        }
+
+        .border-orange {
+            border-color: var(--color-orange) !important;
+        }
+
+        .border-gray {
+            border-color: var(--color-gray) !important;
+        }
+
+        /* Animation */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
             }
-            
-            .nav-container {
-                padding: 0 1rem;
-            }
-            
-            .nav-links {
-                display: none;
-            }
-            
-            .btn {
-                padding: 0.875rem 1.5rem;
-                font-size: 0.9rem;
-            }
-            
-            .btn-lg {
-                padding: 1rem 2rem;
-                font-size: 1rem;
-            }
-            
-            .btn-xl {
-                padding: 1.25rem 2.5rem;
-                font-size: 1.125rem;
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
             }
         }
 
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 0.875rem;
-            }
-            
-            .btn {
-                padding: 0.75rem 1.25rem;
-                font-size: 0.875rem;
-            }
+        .hover-lift {
+            transition: transform 0.3s ease;
         }
 
-        /* Print Styles */
-        @media print {
-            .navbar,
-            .loading-overlay,
-            .message {
-                display: none !important;
-            }
-            
-            body {
-                background: white !important;
-                color: black !important;
-            }
-            
-            .glass-card {
-                background: white !important;
-                border: 1px solid #ccc !important;
-                box-shadow: none !important;
-            }
-        }
-
-        /* Accessibility */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
-        }
-
-        /* Focus Styles for Accessibility */
-        .btn:focus-visible,
-        .form-input:focus-visible,
-        .form-textarea:focus-visible,
-        .form-select:focus-visible {
-            outline: 2px solid var(--color-blue);
-            outline-offset: 2px;
+        .hover-lift:hover {
+            transform: translateY(-5px);
         }
 
         /* Custom Scrollbar */
@@ -624,201 +267,94 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--color-gray-light);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: var(--color-minder);
+            background: var(--color-blue);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: var(--color-blue);
+            background: var(--color-blue-dark);
         }
 
-        /* Additional block styles can be added here */
-        {% block extra_css %}{% endblock %}
+        /* Form Controls */
+        .form-control {
+            border: 2px solid var(--color-gray-light);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--color-blue);
+            box-shadow: 0 0 0 3px rgba(20, 130, 255, 0.1);
+        }
+
+        /* Professional spacing */
+        .section-padding {
+            padding: 4rem 0;
+        }
+
+        .content-spacing {
+            padding: 2rem 0;
+        }
     </style>
-    
-    <!-- Block for additional head content -->
-    {% block head_extra %}{% endblock %}
 </head>
-<body>
+<body class="bg-pattern">
     <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">🎯 CTA Literally Bot</a>
-            
-            <ul class="nav-links">
-                {% block nav_links %}
-                <li><a href="/#features">Features</a></li>
-                <li><a href="/#examples">Examples</a></li>
-                <li><a href="/#pricing">Pricing</a></li>
-                <li><a href="/#contact">Contact</a></li>
-                {% endblock %}
-            </ul>
-            
-            <div class="nav-actions">
-                {% block nav_actions %}
-                <a href="/" class="btn btn-secondary">🔄 New Analysis</a>
-                {% endblock %}
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-bolt"></i>
+                CTA Optimization Bot
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">
+                    <i class="fas fa-home"></i> Home
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <div class="container-main">
+        <div class="container">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else category }} alert-dismissible fade show fade-in mt-4" role="alert">
+                            <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-    <!-- Footer -->
-    {% block footer %}
-    <footer style="background: rgba(0,0,0,0.8); padding: 2rem 0; margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div class="container text-center">
-            <p style="color: var(--color-minder); margin-bottom: 1rem;">
-                © 2024 CTA Literally Bot. Transform your CTAs, transform your conversions.
-            </p>
-            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
-                <a href="/privacy" style="color: var(--color-minder); text-decoration: none;">Privacy Policy</a>
-                <a href="/terms" style="color: var(--color-minder); text-decoration: none;">Terms of Service</a>
-                <a href="/support" style="color: var(--color-minder); text-decoration: none;">Support</a>
-            </div>
-        </div>
-    </footer>
-    {% endblock %}
-
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3 class="loading-title" id="loadingTitle">🧠 Processing...</h3>
-            <p class="loading-subtitle" id="loadingSubtitle">Please wait while we work our magic</p>
+            <!-- Page Content -->
+            {% block content %}{% endblock %}
         </div>
     </div>
 
-    <!-- Messages Container -->
-    <div id="messages" style="position: fixed; top: 100px; right: 20px; z-index: 1000; max-width: 400px;"></div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                <i class="fas fa-code"></i>
+                Built with AI & Advanced Analytics • 
+                <i class="fas fa-bolt text-primary"></i>
+                Transform CTAs into Conversion Drivers
+            </p>
+        </div>
+    </footer>
 
-    <!-- Base JavaScript -->
-    <script>
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
-        });
-
-        // Enhanced message system
-        function showMessage(text, type = 'info') {
-            const messagesContainer = document.getElementById('messages');
-            const message = document.createElement('div');
-            message.className = `message ${type}`;
-            
-            // Add icon based on type
-            const icons = {
-                'success': '✅',
-                'error': '❌',
-                'warning': '⚠️',
-                'info': 'ℹ️'
-            };
-            
-            message.innerHTML = `
-                <span style="font-size: 1.2rem;">${icons[type] || icons.info}</span>
-                <span>${text}</span>
-            `;
-            
-            message.style.opacity = '0';
-            message.style.transform = 'translateX(100%)';
-            message.style.transition = 'all 0.3s ease';
-            
-            messagesContainer.appendChild(message);
-            
-            // Animate in
-            setTimeout(() => {
-                message.style.opacity = '1';
-                message.style.transform = 'translateX(0)';
-            }, 10);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                message.style.opacity = '0';
-                message.style.transform = 'translateX(100%)';
-                setTimeout(() => message.remove(), 300);
-            }, 5000);
-        }
-
-        // Enhanced loading system
-        function showLoading(title = '🧠 Processing...', subtitle = 'Please wait while we work our magic') {
-            const overlay = document.getElementById('loadingOverlay');
-            const titleEl = document.getElementById('loadingTitle');
-            const subtitleEl = document.getElementById('loadingSubtitle');
-            
-            if (titleEl) titleEl.textContent = title;
-            if (subtitleEl) subtitleEl.textContent = subtitle;
-            
-            overlay.style.display = 'flex';
-            
-            // Add body class to prevent scrolling
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideLoading() {
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
-
-        // Smooth scrolling for anchor links
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    const href = this.getAttribute('href');
-                    if (href !== '#') {
-                        e.preventDefault();
-                        const target = document.querySelector(href);
-                        if (target) {
-                            const offsetTop = target.offsetTop - 100; // Account for fixed navbar
-                            window.scrollTo({
-                                top: offsetTop,
-                                behavior: 'smooth'
-                            });
-                        }
-                    }
-                });
-            });
-            
-            // Flash messages from Flask
-            {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                setTimeout(() => showMessage('{{ message | safe }}', '{{ category }}'), 100);
-                {% endfor %}
-            {% endif %}
-            {% endwith %}
-        });
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // Escape key to close loading overlay
-            if (e.key === 'Escape') {
-                hideLoading();
-            }
-            
-            // Ctrl/Cmd + K to focus search (if exists)
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                const searchInput = document.querySelector('input[type="search"], input[name="url"], input[name="text"]');
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            }
-        });
-
-        // Block for additional JavaScript
-        {% block javascript %}{% endblock %}
-    </script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    {% block scripts %}{% endblock %}
 </body>
 </html>
