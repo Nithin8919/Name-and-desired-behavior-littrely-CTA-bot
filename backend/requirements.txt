@@ -1,55 +1,106 @@
-# Core FastAPI and web framework
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+# Core Web Framework
+Flask==2.3.3
+Werkzeug==2.3.7
 
-# HTTP and web scraping
+# OpenAI Integration
+openai==1.10.0
+
+# Web Scraping & HTML Parsing
 requests==2.31.0
-httpx==0.25.2
 beautifulsoup4==4.12.2
 lxml==4.9.3
+urllib3==2.0.7
 
-# OpenAI and AI services
-openai==1.3.7
-tiktoken==0.5.2
-
-# Image processing and OCR
+# OCR for Image Processing
+easyocr==1.7.0
 Pillow==10.1.0
-pytesseract==0.3.10
-pdf2image==1.16.3
+opencv-python-headless==4.8.1.78
 
-# Data processing and validation
-pydantic==2.5.0
+# Text Processing & NLP
+nltk==3.8.1
+textblob==0.17.1
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Data Processing
 pandas==2.1.4
-numpy==1.25.2
+numpy==1.24.3
 
-# Background tasks and async
+# JSON Handling & Validation
+jsonschema==4.19.2
+
+# HTTP Client
+httpx==0.25.2
+
+# Async Support
+asyncio==3.4.3
+
+# File Processing
+chardet==5.2.0
+
+# Logging
+loguru==0.7.2
+
+# Testing (Development)
+pytest==7.4.3
+pytest-flask==1.3.0
+pytest-asyncio==0.21.1
+
+# Production Server
+gunicorn==21.2.0
+
+# CORS Support
+Flask-CORS==4.0.0
+
+# Rate Limiting
+Flask-Limiter==3.5.0
+
+# Caching
+Flask-Caching==2.1.0
+
+# Session Management
+Flask-Session==0.5.0
+
+# Security
+Flask-WTF==1.2.1
+WTForms==3.1.1
+
+# Database (if needed for future features)
+SQLAlchemy==2.0.23
+Flask-SQLAlchemy==3.1.1
+
+# Background Tasks
 celery==5.3.4
 redis==5.0.1
 
-# Database (optional for caching)
-sqlalchemy==2.0.23
-alembic==1.13.1
+# Export Functionality
+openpyxl==3.1.2
+xlsxwriter==3.1.9
 
-# Logging and monitoring
-loguru==0.7.2
+# Image Processing
+opencv-contrib-python-headless==4.8.1.78
 
-# Testing
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.2
-
-# Development tools
-black==23.11.0
-isort==5.12.0
-flake8==6.1.0
-openai==1.12.0
-tiktoken==0.5.2
-Pillow==10.2.0
+# Additional OCR Support
 pytesseract==0.3.10
-pdf2image==1.16.3
-playwright==1.41.0
-readability-lxml==0.8.1
-python-multipart==0.0.6
-uvicorn[standard]==0.27.0
-fastapi==0.108.0
+
+# Web Automation (Optional - for advanced crawling)
+selenium==4.15.2
+webdriver-manager==4.0.1
+
+# Performance Monitoring
+psutil==5.9.6
+
+# Configuration Management
+pydantic==2.5.1
+
+# Development Tools
+black==23.11.0
+flake8==6.1.0
+isort==5.12.0
+
+# Documentation
+Sphinx==7.2.6
+
+# Environment Detection
+python-decouple==3.8
